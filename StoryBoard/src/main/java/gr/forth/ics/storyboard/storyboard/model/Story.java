@@ -28,7 +28,7 @@ public class Story implements Serializable{
     private Date postDate;
     
     @Column(name=Resources.STORY_NUMBER_OF_LIKES_COLUMN)
-    private int numberOfLikes;
+    private Integer numberOfLikes;
     
     @Column(name=Resources.STORY_BY_USER_COLUMN)
     private User byUser;

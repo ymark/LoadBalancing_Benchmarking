@@ -71,6 +71,19 @@ public class StoryService {
         session.close();
     }
     
+    public void addStories(Collection<Story> newStories){
+        log.debug("Adding "+newStories.size()+" stories");
+        SessionFactory sessionFactory=configuration.buildSessionFactory();
+        Session session=sessionFactory.openSession();
+        Transaction transaction=session.beginTransaction();
+        for(Story newStory : newStories){
+            System.out.println(newStory);
+            session.persist(newStory);
+        }
+        transaction.commit();
+        session.close();
+    }
+    
 //    public void updatePerson(Person person){
 //        log.debug("update person "+person);
 //        SessionFactory sessionFactory=configuration.buildSessionFactory();

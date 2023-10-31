@@ -71,6 +71,18 @@ public class UserService {
         session.close();
     }
     
+    public void addUsers(Collection<User> newUsers){
+        log.debug("Adding "+newUsers.size()+" users");
+        SessionFactory sessionFactory=configuration.buildSessionFactory();
+        Session session=sessionFactory.openSession();
+        Transaction transaction=session.beginTransaction();
+        for(User newUser : newUsers){
+            session.persist(newUser);
+        }
+        transaction.commit();
+        session.close();
+    }
+    
 //    public void updatePerson(Person person){
 //        log.debug("update person "+person);
 //        SessionFactory sessionFactory=configuration.buildSessionFactory();
