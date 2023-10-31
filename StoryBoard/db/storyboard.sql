@@ -13,7 +13,7 @@ CREATE TABLE story(
 	FOREIGN KEY (by_user) REFERENCES user(id)
 );
 
-CREATE TABLE like(
+CREATE TABLE storylike(
 	like_date DATE NOT NULL,
 	by_user varchar(36) NOT NULL,
 	for_story varchar(36) NOT NULL,
