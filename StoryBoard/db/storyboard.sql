@@ -9,6 +9,7 @@ CREATE TABLE story(
 	contents VARCHAR(256) NOT NULL,
 	post_date DATE NOT NULL,
 	by_user int NOT NULL,
+	number_of_likes int NOT NULL,
 	PRIMARY KEY (id),
 	FOREIGN KEY (by_user) REFERENCES user(id)
 );

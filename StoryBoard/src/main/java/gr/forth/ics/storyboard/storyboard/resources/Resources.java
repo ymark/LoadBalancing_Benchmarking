@@ -6,6 +6,7 @@ package gr.forth.ics.storyboard.storyboard.resources;
 public class Resources {
     public static final String STORY_TABLE="story";
     public static final String STORY_CONTENTS_COLUMN="contents";
+    public static final String STORY_NUMBER_OF_LIKES_COLUMN="number_of_likes";
     public static final String STORY_POST_DATE_COLUMN="post_date";
     public static final String STORY_BY_USER_COLUMN="by_user";
     public static final String STORY_ID_COLUMN="id";
