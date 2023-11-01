@@ -12,6 +12,7 @@ import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Yannis Marketakis (marketak 'at' ics 'dot' forth 'dot' gr)
@@ -20,19 +21,19 @@ import lombok.NoArgsConstructor;
 @Table(name=Resources.STORY_TABLE)
 public class Story implements Serializable{
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
-    @Column(name=Resources.STORY_ID_COLUMN)
+    @Column(name=Resources.STORY_ID_COLUMN) @JsonProperty("id") 
     private Integer id;
     
-    @Column(name=Resources.STORY_TITLE_COLUMN)
+    @Column(name=Resources.STORY_TITLE_COLUMN) @JsonProperty("title") 
     private String title;
     
-    @Column(name=Resources.STORY_CONTENTS_COLUMN)
+    @Column(name=Resources.STORY_CONTENTS_COLUMN) @JsonProperty("contents") 
     private String contents;
     
-    @Column(name=Resources.STORY_POST_DATE_COLUMN)
+    @Column(name=Resources.STORY_POST_DATE_COLUMN) @JsonProperty("post_date") 
     private Date postDate;
     
-    @Column(name=Resources.STORY_NUMBER_OF_LIKES_COLUMN)
+    @Column(name=Resources.STORY_NUMBER_OF_LIKES_COLUMN) @JsonProperty("number_of_likes") 
     private Integer numberOfLikes;
     
     public Story(String title, String contents, Date postDate, int numOfLikes){
