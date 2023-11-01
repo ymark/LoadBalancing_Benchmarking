@@ -1,0 +1,30 @@
+version: '3'
+services:
+  biblioregistry_mysql:
+    image: mysql:5.7
+    container_name: biblioregistry_mysql
+    hostname: biblioregistry_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'biblioregistry'
+      MYSQL_USER: 'marketak'
+      MYSQL_PASSWORD: 'marketak_1234_pass'
+      MYSQL_ROOT_PASSWORD: 'root'
+    #ports:
+    #  - '3306:3306'
+    #expose:
+    #  - '3306'
+    #volumes:
+    #  - my-db:/home/marketak/MySQL/mysql_volume
+  biblioregistry_app:
+    container_name: biblioregistry_app
+    hostname: biblioregistry_app
+    restart: always
+    build:
+      context: app
+      dockerfile: Dockerfile
+    ports:
+     - 8080:8080
+    depends_on:
+     - biblioregistry_mysql
+  
