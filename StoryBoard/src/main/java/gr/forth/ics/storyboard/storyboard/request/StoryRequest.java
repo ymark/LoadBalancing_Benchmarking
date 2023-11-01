@@ -25,8 +25,8 @@ public class StoryRequest {
     
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    @Path("/")
-    public Response getRequest(@QueryParam("num_of_likes") String numOfLikes){
+    @Path("/many/")
+    public Response getRequestMany(@QueryParam("num_of_likes") String numOfLikes){
         log.info("Received incoming request for searching stories with number of likes: "+numOfLikes);
         
         Response.Status status=Response.Status.OK;
@@ -36,6 +36,25 @@ public class StoryRequest {
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
                        .entity(storiesResults)
+                       .build();
+   
+    }
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/single/")
+    public Response getRequestSingle(@QueryParam("id") String id){
+        log.info("Received incoming request for searching sotry with id: "+id);
+        
+        Response.Status status=Response.Status.OK;
+        Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
+        if(story==null){
+            status=Response.Status.NOT_FOUND;
+        }
+        log.debug("Return values in JSON format");
+        return Response.status(status)
+                       .type(MediaType.APPLICATION_JSON)
+                       .entity(story)
                        .build();
    
     }

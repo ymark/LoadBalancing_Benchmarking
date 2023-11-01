@@ -43,6 +43,17 @@ public class StoryService {
         return retStories;
     }
     
+    public Story getStoryWithId(int id){
+        log.debug("search for story with id "+id);
+        SessionFactory sessionFactory=configuration.buildSessionFactory();
+        Session session=sessionFactory.openSession();
+        Query query=session.createQuery("FROM Story s WHERE s.id = :id", Story.class);
+        query.setParameter("id", id);
+        List<Story> retStories=query.list();
+        session.close();
+        return (!retStories.isEmpty()?retStories.get(0):null);
+    }
+    
 //    public Collection<Story> search(int id, String firstName, String lastName, String phoneNumber, boolean deletedMember){
 //        log.debug("Search persons using id: "+id+", firstName: "+firstName+", lastName: "+lastName+", phoneNumber: "+phoneNumber+", deletedMember: "+deletedMember);
 //        SessionFactory sessionFactory=configuration.buildSessionFactory();
