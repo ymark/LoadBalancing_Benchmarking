@@ -3,6 +3,8 @@ package gr.forth.ics.storyboard.storyboard.model;
 import gr.forth.ics.storyboard.storyboard.resources.Resources;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serializable;
@@ -17,9 +19,12 @@ import lombok.NoArgsConstructor;
 @Data @NoArgsConstructor @AllArgsConstructor @Entity
 @Table(name=Resources.STORY_TABLE)
 public class Story implements Serializable{
-    @Id
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name=Resources.STORY_ID_COLUMN)
     private Integer id;
+    
+    @Column(name=Resources.STORY_TITLE_COLUMN)
+    private String title;
     
     @Column(name=Resources.STORY_CONTENTS_COLUMN)
     private String contents;
@@ -30,6 +35,10 @@ public class Story implements Serializable{
     @Column(name=Resources.STORY_NUMBER_OF_LIKES_COLUMN)
     private Integer numberOfLikes;
     
-    @Column(name=Resources.STORY_BY_USER_COLUMN)
-    private User byUser;
+    public Story(String title, String contents, Date postDate, int numOfLikes){
+        this.title=title;
+        this.contents=contents;
+        this.postDate=postDate;
+        this.numberOfLikes=numOfLikes;
+    }
 }

@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
 /**
  * @author Yannis Marketakis (marketak 'at' ics 'dot' forth 'dot' gr)
@@ -31,7 +32,18 @@ public class StoryService {
         return persons;
     }
         
-//    public Collection<Person> search(int id, String firstName, String lastName, String phoneNumber, boolean deletedMember){
+    public Collection<Story> getStoriesWithAtLeastNumberOfLikes(int numberOfLikes){
+        log.debug("search for stories with at least "+numberOfLikes+" likes");
+        SessionFactory sessionFactory=configuration.buildSessionFactory();
+        Session session=sessionFactory.openSession();
+        Query query=session.createQuery("FROM Story s WHERE s.numberOfLikes >= :numlikes", Story.class);
+        query.setParameter("numlikes", numberOfLikes);
+        List<Story> retStories=query.list();
+        session.close();
+        return retStories;
+    }
+    
+//    public Collection<Story> search(int id, String firstName, String lastName, String phoneNumber, boolean deletedMember){
 //        log.debug("Search persons using id: "+id+", firstName: "+firstName+", lastName: "+lastName+", phoneNumber: "+phoneNumber+", deletedMember: "+deletedMember);
 //        SessionFactory sessionFactory=configuration.buildSessionFactory();
 //        Session session=sessionFactory.openSession();
@@ -118,7 +130,9 @@ public class StoryService {
     
     public static void main(String[] args){
         StoryService storyService=new StoryService();
-        storyService.getAll();
+//        storyService.getAll();
+        Collection<Story> stories=storyService.getStoriesWithAtLeastNumberOfLikes(450);
+        System.out.println(stories.size());
 //        Collection<Person> persons=personService.getAll();
 //        for(Person person : persons){
 //            System.out.println(person);

@@ -1,12 +1,10 @@
 package gr.forth.ics.storyboard.storyboard.resources;
 
 import gr.forth.ics.storyboard.storyboard.model.Story;
-import gr.forth.ics.storyboard.storyboard.model.User;
+import org.apache.commons.lang3.RandomStringUtils;
 import gr.forth.ics.storyboard.storyboard.service.StoryService;
-import gr.forth.ics.storyboard.storyboard.service.UserService;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.log4j.Log4j2;
@@ -17,33 +15,32 @@ import lombok.extern.log4j.Log4j2;
 //@AllArgsConstructor
 @Log4j2
 public class SampleLoader {
-    private static final String STORY_DEFAULT_TEXT="This is my super great story, I just posted in my StoryBoard. My ID is ";
+    private static void loadSampleData(int numberOfStories){
+        Set<Story> storiesCol=new HashSet<>();
+        for(int i=1;i<=numberOfStories;i++){
+            storiesCol.add(new Story(generateSentence(3, 6, 4, 12),
+                                     generateSentence(10, 40, 4, 12),
+                                     Date.valueOf(LocalDate.now().minusDays((long)randomNumber(1, 365))),
+                                     randomNumber(1, 500)));
+        }
+        new StoryService().addStories(storiesCol);
+    }
     
-    private static void loadSampleData(int numberOfUsers, int numberOfStories){
-//        Set<User> usersCol=new HashSet<>();
-//        Set<Story> storiesCol=new HashSet<>();
-//        for(int i=1;i<=numberOfUsers;i++){
-//            usersCol.add(new User(i,"username-"+i));
-//        }
-//        log.info("Created "+usersCol.size()+" users");
-//        for(int i=1;i<=numberOfStories;i++){
-//            storiesCol.add(new Story(i, STORY_DEFAULT_TEXT+i, Calendar.getInstance().getTime(), 0, usersCol.stream().findAny().get()));
-//        }
-//        log.info("Created "+storiesCol.size()+" stories");
-//        
-//        log.info("load users in database");
-//        new UserService().addUsers(usersCol);
-//        
-//        log.info("load stories in database");
-//        new StoryService().addStories(storiesCol);
-        User user=new User(15,"marketak");
-        Story story=new Story(15,"My story",Date.valueOf(LocalDate.now()),3,user);
-        new UserService().addUser(user);
-        new StoryService().addStory(story);
+    private static String generateSentence(int minWords, int maxWords, int minWordsLength, int maxWordLength){
+        StringBuilder sentenceBuilder=new StringBuilder();
+        for(int i=0;i<randomNumber(minWords, maxWords);i++){
+            sentenceBuilder.append(RandomStringUtils.randomAlphabetic(minWordsLength,maxWordLength)).append(" ");
+        }
+        sentenceBuilder.setCharAt(0, Character.toUpperCase(sentenceBuilder.charAt(0)));
+        return sentenceBuilder.toString().trim();
+    }
+    
+    private static int randomNumber(int min, int max){
+        return min+(int)(Math.random()*(max-min+1));
     }
        
     public static void main(String[] args){
-        loadSampleData(10,10);
+        loadSampleData(15000);
     }
 
 }
