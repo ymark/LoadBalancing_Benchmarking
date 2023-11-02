@@ -10,12 +10,8 @@ services:
       MYSQL_USER: 'marketak'
       MYSQL_PASSWORD: 'root_ROOT_1234'
       MYSQL_ROOT_PASSWORD: 'root_ROOT_1234'
-    #ports:
-    #  - '3306:3306'
-    #expose:
-    #  - '3306'
-    #volumes:
-    #  - my-db:/home/marketak/MySQL/mysql_volume
+    volumes:
+      - ./resources/storyboard.sql:/docker-entrypoint-initdb.d/dump.sql
   storyboard_app:
     container_name: storyboard_app
     hostname: storyboard_app
