@@ -3,6 +3,8 @@ package gr.forth.ics.storyboard.storyboard.request;
 import gr.forth.ics.storyboard.storyboard.model.Story;
 import gr.forth.ics.storyboard.storyboard.service.StoryService;
 import java.util.Collection;
+import java.sql.Date;
+import java.time.LocalDate;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -50,6 +52,45 @@ public class StoryRequest {
         Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
         if(story==null){
             status=Response.Status.NOT_FOUND;
+        }
+        log.debug("Return values in JSON format");
+        return Response.status(status)
+                       .type(MediaType.APPLICATION_JSON)
+                       .entity(story)
+                       .build();
+   
+    }
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/new/")
+    public Response getRequestAdd(@QueryParam("title") String title,
+                                  @QueryParam("story_content") String storyContents){
+        log.info("Received incoming request for searching adding a new story with title: "+title+" and contents: "+storyContents);
+        
+        Response.Status status=Response.Status.OK;
+        Story newStory=new Story(title, storyContents, Date.valueOf(LocalDate.now()), 0);
+        this.storyService.addStory(newStory);
+        return Response.status(status)
+                       .type(MediaType.APPLICATION_JSON)
+                       .entity("New Story added")
+                       .build();
+   
+    }
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/vote/")
+    public Response getRequestVote(@QueryParam("id") String id){
+        log.info("Received incoming request for votinh a story with id: "+id);
+        
+        Response.Status status=Response.Status.OK;
+        Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
+        if(story==null){
+            status=Response.Status.NOT_FOUND;
+        }else{
+            story.setNumberOfLikes(story.getNumberOfLikes().intValue()+1);
+            this.storyService.addStory(story);
         }
         log.debug("Return values in JSON format");
         return Response.status(status)
