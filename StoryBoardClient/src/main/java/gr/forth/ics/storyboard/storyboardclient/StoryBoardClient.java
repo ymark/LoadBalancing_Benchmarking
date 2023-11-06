@@ -3,6 +3,7 @@ package gr.forth.ics.storyboard.storyboardclient;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -14,17 +15,19 @@ import org.apache.http.util.EntityUtils;
  */
 public class StoryBoardClient {
     private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/single/";
+    private static List<Pair<Integer,Long>> resultsList=new ArrayList<>();
     
     private static void visitStoryBoard(int storyId) {
         try{
-            long time=System.currentTimeMillis();
+            
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(SERVICE_URL+"/?id="+storyId);
+            long time=System.currentTimeMillis();
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String responseBody = EntityUtils.toString(response.getEntity());
-            System.out.println("HTTP Status Code: " + response.getStatusLine().getStatusCode());
-            System.out.println("Response Body: " + responseBody);
-            System.out.println("TIME: "+(System.currentTimeMillis()-time));
+            resultsList.add(Pair.of(
+                    response.getStatusLine().getStatusCode(), 
+                    (System.currentTimeMillis()-time)));
             response.close();
         }catch(IOException ex){
             ex.printStackTrace();
@@ -43,14 +46,31 @@ public class StoryBoardClient {
             threads.add(thread);
         }
         threads.forEach(thr -> thr.start());
+        threads.forEach(thr-> {
+            try{
+                thr.join();
+            }catch(InterruptedException ex){
+                ex.printStackTrace();
+            }
+                
+        });
     }
     
     private static int randomNumber(int min, int max){
         return min+(int)(Math.random()*(max-min+1));
     }
     
-    public static void main(String[] args) throws IOException {
+    private static void printResults(){
+        System.out.println("Response Code\tThroughput time (ms)");
+        for(Pair<Integer,Long> triple : resultsList){
+            System.out.println(triple);
+        }
+    }
+    
+    public static void main(String[] args) throws IOException, InterruptedException {
 //        visitStoryBoard(567);
-        visitStoryBoardMultiThread(5);
+        visitStoryBoardMultiThread(10);
+//        Thread.sleep(10000);
+        printResults();
     }
 }
