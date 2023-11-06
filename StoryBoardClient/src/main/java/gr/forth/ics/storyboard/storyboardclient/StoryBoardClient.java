@@ -15,7 +15,8 @@ import org.apache.http.util.EntityUtils;
  * @author Yannis Marketakis (marketak 'at' ics 'dot' forth 'dot' gr)
  */
 public class StoryBoardClient {
-    private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/single/";
+    private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/";
+    private static final String SERVICE_STORY_URL = SERVICE_URL+"single/";
     private static List<Pair<Integer,Long>> resultsList=new ArrayList<>();
     private static int NUMBER_OF_THREADS;
     
@@ -23,7 +24,7 @@ public class StoryBoardClient {
         try{
             
             CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpGet httpGet = new HttpGet(SERVICE_URL+"/?id="+storyId);
+            HttpGet httpGet = new HttpGet(SERVICE_STORY_URL+"/?id="+storyId);
             long time=System.currentTimeMillis();
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String responseBody = EntityUtils.toString(response.getEntity());
@@ -79,10 +80,37 @@ public class StoryBoardClient {
         }
     }
     
+    private static void visitStoryBoardNoBenchmark(String method, String parameterName, String parameterValue) {
+        try{
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(SERVICE_URL+method+"/?"+parameterName+"="+parameterValue);
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            response.getEntity();
+            String responseBody = EntityUtils.toString(response.getEntity());
+            response.close();
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    private static void warmUp(){
+        int warmUpRounds=20;
+        for(int i=1;i<=warmUpRounds;i++){
+            int numOfLikes=randomNumber(1, 500);
+            int randomStoryId=randomNumber(1, 20000);
+            long roundStartTimeMs=System.currentTimeMillis();
+            System.out.println("Warm-up queries (round "+i+"/"+warmUpRounds+") - Fetch story with random ID ("+randomStoryId+"), and collection of stories with random votes (>= "+numOfLikes+")");
+            visitStoryBoardNoBenchmark("single", "id", String.valueOf(randomStoryId));
+            visitStoryBoardNoBenchmark("many", "num_of_likes", String.valueOf(numOfLikes));
+            System.out.println("Warm-up round "+i+" finished in "+(System.currentTimeMillis()-roundStartTimeMs)+" ms.");
+        }
+    }
+    
     public static void main(String[] args) throws IOException, InterruptedException {
         NUMBER_OF_THREADS=10;
         visitStoryBoardMultiThread(NUMBER_OF_THREADS);
-        printResultsDetailed();
+//        printResultsDetailed();
         printResultsAggregated();
+//        warmUp();
     }
 }
