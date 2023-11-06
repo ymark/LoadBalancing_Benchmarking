@@ -3,6 +3,7 @@ package gr.forth.ics.storyboard.storyboardclient;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -16,6 +17,7 @@ import org.apache.http.util.EntityUtils;
 public class StoryBoardClient {
     private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/single/";
     private static List<Pair<Integer,Long>> resultsList=new ArrayList<>();
+    private static int NUMBER_OF_THREADS;
     
     private static void visitStoryBoard(int storyId) {
         try{
@@ -67,9 +69,20 @@ public class StoryBoardClient {
         }
     }
     
+    private static void printResultsAggregated(){
+        System.out.println("Number of Threads: "+NUMBER_OF_THREADS);
+        for(Integer respCode : resultsList.stream().map(Pair::getKey).collect(Collectors.toSet())){
+            long minThroughput=resultsList.stream().filter(pair -> pair.getKey().longValue()==respCode.longValue()).map(Pair::getValue).mapToLong(Long::longValue).min().orElse(-1);
+            long maxThroughput=resultsList.stream().filter(pair -> pair.getKey().longValue()==respCode.longValue()).map(Pair::getValue).mapToLong(Long::longValue).max().orElse(-1);
+            double avgThroughput=resultsList.stream().filter(pair -> pair.getKey().longValue()==respCode.longValue()).map(Pair::getValue).mapToLong(Long::longValue).average().orElse(-1);
+            System.out.println("RESPONSE_CODE: "+respCode+"\tAvg: "+avgThroughput+"\tMin: "+minThroughput+"\tMax: "+maxThroughput);
+        }
+    }
+    
     public static void main(String[] args) throws IOException, InterruptedException {
-//        visitStoryBoard(567);
-        visitStoryBoardMultiThread(10);
+        NUMBER_OF_THREADS=10;
+        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
         printResultsDetailed();
+        printResultsAggregated();
     }
 }
