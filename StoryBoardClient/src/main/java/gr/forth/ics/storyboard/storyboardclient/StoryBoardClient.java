@@ -60,7 +60,7 @@ public class StoryBoardClient {
         return min+(int)(Math.random()*(max-min+1));
     }
     
-    private static void printResults(){
+    private static void printResultsDetailed(){
         System.out.println("Response Code\tThroughput time (ms)");
         for(Pair<Integer,Long> triple : resultsList){
             System.out.println(triple);
@@ -70,7 +70,6 @@ public class StoryBoardClient {
     public static void main(String[] args) throws IOException, InterruptedException {
 //        visitStoryBoard(567);
         visitStoryBoardMultiThread(10);
-//        Thread.sleep(10000);
-        printResults();
+        printResultsDetailed();
     }
 }
