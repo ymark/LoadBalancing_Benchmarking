@@ -5,9 +5,11 @@
 <hibernate-configuration>
     <session-factory>
         <!-- Set URL -->
-        <property name = "hibernate.connection.url">jdbc:mysql://62.217.127.213:3306/storyboard?characterEncoding=UTF-8</property>
+        <!--<property name = "hibernate.connection.url">jdbc:mysql://62.217.127.213:3306/storyboard?characterEncoding=UTF-8</property>-->
+        <property name = "hibernate.connection.url">jdbc:mysql://storyboard_mysql:3306/storyboard?characterEncoding=UTF-8</property>
         <!-- Set User Name -->
-        <property name = "hibernate.connection.username">root</property>
+        <!--<property name = "hibernate.connection.username">root</property>-->
+        <property name = "hibernate.connection.username">marketak</property>
         <!-- Set Password -->
         <property name = "hibernate.connection.password">root_ROOT_1234</property>
         <!-- Set Driver Name -->
