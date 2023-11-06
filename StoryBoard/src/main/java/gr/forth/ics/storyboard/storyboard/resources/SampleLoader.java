@@ -42,5 +42,4 @@ public class SampleLoader {
     public static void main(String[] args){
         loadSampleData(15000);
     }
-
 }

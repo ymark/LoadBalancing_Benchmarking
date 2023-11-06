@@ -44,7 +44,7 @@ public class StoryRequest {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/single/")
     public Response getRequestSingle(@QueryParam("id") String id){
-        log.info("Received incoming request for searching sotry with id: "+id);
+        log.info("Received incoming request for searching story with id: "+id);
         
         Response.Status status=Response.Status.OK;
         Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
