@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Transient;
+import java.util.UUID;
 
 /**
  * @author Yannis Marketakis (marketak 'at' ics 'dot' forth 'dot' gr)
@@ -35,6 +37,9 @@ public class Story implements Serializable{
     
     @Column(name=Resources.STORY_NUMBER_OF_LIKES_COLUMN) @JsonProperty("number_of_likes") 
     private Integer numberOfLikes;
+    
+    @Transient @JsonProperty("served_by") 
+    private UUID serverUuid;
     
     public Story(String title, String contents, Date postDate, int numOfLikes){
         this.title=title;

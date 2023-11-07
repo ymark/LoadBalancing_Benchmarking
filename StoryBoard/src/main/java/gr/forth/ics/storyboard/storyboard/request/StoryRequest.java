@@ -1,6 +1,7 @@
 package gr.forth.ics.storyboard.storyboard.request;
 
 import gr.forth.ics.storyboard.storyboard.model.Story;
+import gr.forth.ics.storyboard.storyboard.resources.Resources;
 import gr.forth.ics.storyboard.storyboard.service.StoryService;
 import java.util.Collection;
 import java.sql.Date;
@@ -33,6 +34,7 @@ public class StoryRequest {
         
         Response.Status status=Response.Status.OK;
         Collection<Story> storiesResults=this.storyService.getStoriesWithAtLeastNumberOfLikes(Integer.valueOf(numOfLikes));
+        storiesResults.forEach(aStory -> aStory.setServerUuid(Resources.SERVER_INSTANCE_UUID));
 
         log.debug("Return values in JSON format");
         return Response.status(status)
@@ -52,6 +54,8 @@ public class StoryRequest {
         Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
         if(story==null){
             status=Response.Status.NOT_FOUND;
+        }else{
+            story.setServerUuid(Resources.SERVER_INSTANCE_UUID);
         }
         log.debug("Return values in JSON format");
         return Response.status(status)
@@ -71,9 +75,10 @@ public class StoryRequest {
         Response.Status status=Response.Status.OK;
         Story newStory=new Story(title, storyContents, Date.valueOf(LocalDate.now()), 0);
         this.storyService.addStory(newStory);
+        newStory.setServerUuid(Resources.SERVER_INSTANCE_UUID);
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
-                       .entity("New Story added")
+                       .entity(newStory)
                        .build();
    
     }
@@ -91,6 +96,7 @@ public class StoryRequest {
         }else{
             story.setNumberOfLikes(story.getNumberOfLikes().intValue()+1);
             this.storyService.addStory(story);
+            story.setServerUuid(Resources.SERVER_INSTANCE_UUID);
         }
         log.debug("Return values in JSON format");
         return Response.status(status)
