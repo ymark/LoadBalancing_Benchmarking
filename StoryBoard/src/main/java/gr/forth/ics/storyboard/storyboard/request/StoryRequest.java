@@ -6,6 +6,7 @@ import gr.forth.ics.storyboard.storyboard.service.StoryService;
 import java.util.Collection;
 import java.sql.Date;
 import java.time.LocalDate;
+//import javax.json.JsonObject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -90,18 +91,19 @@ public class StoryRequest {
         log.info("Received incoming request for votinh a story with id: "+id);
         
         Response.Status status=Response.Status.OK;
-        Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
-        if(story==null){
-            status=Response.Status.NOT_FOUND;
-        }else{
-            story.setNumberOfLikes(story.getNumberOfLikes().intValue()+1);
-            this.storyService.addStory(story);
-            story.setServerUuid(Resources.SERVER_INSTANCE_UUID);
-        }
-        log.debug("Return values in JSON format");
+        this.storyService.voteForStoryWithId(Integer.valueOf(id));
+//        Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
+//        if(story==null){
+//            status=Response.Status.NOT_FOUND;
+//        }else{
+//            story.setNumberOfLikes(story.getNumberOfLikes().intValue()+1);
+//            this.storyService.addStory(story);
+//            story.setServerUuid(Resources.SERVER_INSTANCE_UUID);
+//        }
+//        log.debug("Return values in JSON format");
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
-                       .entity(story)
+                       .entity("{\"id\":"+id+", \"served_by\": \""+Resources.SERVER_INSTANCE_UUID.toString()+"\"}")
                        .build();
    
     }

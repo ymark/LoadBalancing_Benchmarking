@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 
 /**
@@ -87,10 +88,24 @@ public class StoryService {
         session.close();
         sessionFactory.close();
     }
+    
+    public void voteForStoryWithId(int storyId){
+        log.debug("Increase number of votes for story with id "+storyId);
+        SessionFactory sessionFactory=configuration.buildSessionFactory();
+        Session session=sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        MutationQuery query=session.createMutationQuery("update Story s set s.numberOfLikes=s.numberOfLikes +1 WHERE s.id = :id");
+        query.setParameter("id", storyId);
+        query.executeUpdate();
+        session.getTransaction().commit();
+        session.close();
+        sessionFactory.close();
+    }
 
     
     public static void main(String[] args){
         StoryService storyService=new StoryService();
+        storyService.voteForStoryWithId(45);
 //        storyService.getAll();
 //        Collection<Story> stories=storyService.getStoriesWithAtLeastNumberOfLikes(450);
 //        System.out.println(stories.size());

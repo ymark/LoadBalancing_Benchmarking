@@ -20,6 +20,8 @@ import org.json.JSONObject;
 public class StoryBoardClient {
     private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/";
     private static final String SERVICE_STORY_URL = SERVICE_URL+"single/";
+    private static final String SERVICE_VOTE_URL = SERVICE_URL+"vote/";
+    private static final String SERVICE_POST_URL = SERVICE_URL+"new/";
     private static List<Triple<Integer,String,Long>> resultsList=new ArrayList<>();
     private static int NUMBER_OF_THREADS;
     
@@ -28,6 +30,23 @@ public class StoryBoardClient {
             
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(SERVICE_STORY_URL+"/?id="+storyId);
+            long time=System.currentTimeMillis();
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            resultsList.add(Triple.of(
+                    response.getStatusLine().getStatusCode(), 
+                    responseBody,
+                    (System.currentTimeMillis()-time)));
+            response.close();
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    private static void voteForStory(int storyId) {
+        try{
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(SERVICE_VOTE_URL+"/?id="+storyId);
             long time=System.currentTimeMillis();
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String responseBody = EntityUtils.toString(response.getEntity());
@@ -58,8 +77,28 @@ public class StoryBoardClient {
                 thr.join();
             }catch(InterruptedException ex){
                 ex.printStackTrace();
-            }
-                
+            }      
+        });
+    }
+
+    private static void voteForStoryMultiThread(int numOfThreads){
+        List<Thread> threads=new ArrayList<>();
+        for(int i=0;i<numOfThreads;i++){
+            Thread thread=new Thread(){
+                @Override
+                public void run(){
+                    voteForStory(randomNumber(1, 20000));
+                }
+            };
+            threads.add(thread);
+        }
+        threads.forEach(thr -> thr.start());
+        threads.forEach(thr-> {
+            try{
+                thr.join();
+            }catch(InterruptedException ex){
+                ex.printStackTrace();
+            }      
         });
     }
     
@@ -132,7 +171,9 @@ public class StoryBoardClient {
     
     public static void main(String[] args) throws IOException, InterruptedException {
         NUMBER_OF_THREADS=10;
-        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
+//        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
+        voteForStoryMultiThread(NUMBER_OF_THREADS);
+//        postNewStoryMultiThread(NUMBER_OF_THREADS);
 //        printResultsDetailed();
         printResultsAggregated();
 //        warmUp();
