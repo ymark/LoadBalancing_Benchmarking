@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" >
+
+     <Properties>
+        <Property name="logPattern">%d{yyyy-MM-dd HH:mm:ss} %-5p %l - %m%n</Property>
+    </Properties>
+    
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${logPattern}" />
+        </Console>
+
+<!--        <RollingFile name="rollingfile" fileName="logs/grsf-services-core.log"  filePattern="logs/grsf-services-core-%i.log">
+            <PatternLayout pattern="${logPattern}" />
+            <Policies>
+                  <SizeBasedTriggeringPolicy size="10 MB" />
+            </Policies>
+        </RollingFile>-->
+    </Appenders>
+
+    <Loggers>   
+        <Root level="info" >
+            <AppenderRef ref="Console" />
+<!--            <AppenderRef ref="rollingfile" />-->
+        </Root>
+        
+        <logger name="org.springframework.beans" level="error" additivity="false"/>
+        <logger name="org.springframework.core" level="error" additivity="false"/>
+        <logger name="org.springframework.context" level="error" additivity="false"/>
+        <logger name="org.apache.commons.httpclient" level="error" additivity="false"/>
+        <logger name="httpclient.wire.header" level="error" additivity="false"/>
+        <logger name="httpclient.wire.content" level="error" additivity="false"/>
+        <logger name="org.hibernate" level="error" additivity="false"/>
+        
+    </Loggers>
+</Configuration>

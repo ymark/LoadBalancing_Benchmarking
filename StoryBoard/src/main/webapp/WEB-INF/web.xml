@@ -8,4 +8,13 @@
             30
         </session-timeout>
     </session-config>
+    
+<!--    <servlet>
+        <servlet-name>InitServlet</servlet-name>
+        <servlet-class>gr.forth.ics.storyboard.storyboard.Config</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>-->
+    <listener>
+        <listener-class>gr.forth.ics.storyboard.storyboard.Config</listener-class>
+    </listener>
 </web-app>
