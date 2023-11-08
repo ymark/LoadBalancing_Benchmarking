@@ -14,8 +14,8 @@ services:
     volumes:
       - ./resources/storyboard.sql:/docker-entrypoint-initdb.d/dump.sql
   storyboard_app:
-    container_name: storyboard_app
-    hostname: storyboard_app
+    container_name: storyboardapp
+    hostname: storyboardapp
     restart: always
     build:
       context: app
@@ -24,4 +24,13 @@ services:
      - 8099:8080
     depends_on:
      - storyboard_mysql
-  
+  storyboard_nginx:
+    image: nginx:stable
+    container_name: storyboard_nginx
+    hostname: storyboard_nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - /home/marketak/DockerApps/LoadBalancing_Benchmarking/StoryBoard-docker/html:/usr/share/nginx/html
+      - /home/marketak/DockerApps/LoadBalancing_Benchmarking/StoryBoard-docker/conf.d:/etc/nginx/conf.d
