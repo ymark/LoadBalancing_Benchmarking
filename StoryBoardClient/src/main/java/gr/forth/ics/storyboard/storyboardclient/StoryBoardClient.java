@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -59,6 +60,23 @@ public class StoryBoardClient {
             ex.printStackTrace();
         }
     }
+    
+    private static void postNewStory(String storyTitle, String storyContents) {
+        try{
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(SERVICE_POST_URL+"/?title="+storyTitle+"&story_content="+storyContents);
+            long time=System.currentTimeMillis();
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            resultsList.add(Triple.of(
+                    response.getStatusLine().getStatusCode(), 
+                    responseBody,
+                    (System.currentTimeMillis()-time)));
+            response.close();
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
+    }
 
     private static void visitStoryBoardMultiThread(int numOfThreads){
         List<Thread> threads=new ArrayList<>();
@@ -88,6 +106,27 @@ public class StoryBoardClient {
                 @Override
                 public void run(){
                     voteForStory(randomNumber(1, 20000));
+                }
+            };
+            threads.add(thread);
+        }
+        threads.forEach(thr -> thr.start());
+        threads.forEach(thr-> {
+            try{
+                thr.join();
+            }catch(InterruptedException ex){
+                ex.printStackTrace();
+            }      
+        });
+    }
+
+    private static void postNewStoryMultiThread(int numOfThreads){
+        List<Thread> threads=new ArrayList<>();
+        for(int i=0;i<numOfThreads;i++){
+            Thread thread=new Thread(){
+                @Override
+                public void run(){
+                    postNewStory(generateSentence(3, 6, 4, 12).replaceAll(" ", "%20"),generateSentence(10, 40, 4, 12).replace(" ","%20"));
                 }
             };
             threads.add(thread);
@@ -169,12 +208,21 @@ public class StoryBoardClient {
         }
     }
     
+    private static String generateSentence(int minWords, int maxWords, int minWordsLength, int maxWordLength){
+        StringBuilder sentenceBuilder=new StringBuilder();
+        for(int i=0;i<randomNumber(minWords, maxWords);i++){
+            sentenceBuilder.append(RandomStringUtils.randomAlphabetic(minWordsLength,maxWordLength)).append(" ");
+        }
+        sentenceBuilder.setCharAt(0, Character.toUpperCase(sentenceBuilder.charAt(0)));
+        return sentenceBuilder.toString().trim();
+    }
+    
     public static void main(String[] args) throws IOException, InterruptedException {
         NUMBER_OF_THREADS=10;
 //        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
-        voteForStoryMultiThread(NUMBER_OF_THREADS);
-//        postNewStoryMultiThread(NUMBER_OF_THREADS);
-//        printResultsDetailed();
+//        voteForStoryMultiThread(NUMBER_OF_THREADS);
+        postNewStoryMultiThread(NUMBER_OF_THREADS);
+        printResultsDetailed();
         printResultsAggregated();
 //        warmUp();
     }
