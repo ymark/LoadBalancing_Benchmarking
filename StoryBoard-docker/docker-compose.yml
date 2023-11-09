@@ -32,5 +32,5 @@ services:
     ports:
       - 80:80
     volumes:
-      - /home/marketak/DockerApps/LoadBalancing_Benchmarking/StoryBoard-docker/html:/usr/share/nginx/html
-      - /home/marketak/DockerApps/LoadBalancing_Benchmarking/StoryBoard-docker/conf.d:/etc/nginx/conf.d
+      - ./html:/usr/share/nginx/html
+      - ./conf.d:/etc/nginx/conf.d
