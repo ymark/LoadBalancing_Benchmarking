@@ -1,0 +1,14 @@
+http:
+  routers:
+    router0:
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - web
+      service: backend
+
+  services:
+    backend:
+      loadBalancer:
+        servers:
+          - url: http://62.217.127.152
+          - url: http://62.217.127.153
