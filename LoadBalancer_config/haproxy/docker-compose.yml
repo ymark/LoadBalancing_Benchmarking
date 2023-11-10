@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  haproxy:
+    image: haproxytech/haproxy-ubuntu:2.9
+    container_name: haproxy
+    ports:
+      - 80:80
+      - 8888:8888
+    volumes:
+      - ./haproxy.cfg:/etc/haproxy/haproxy.cfg
+    restart: always
