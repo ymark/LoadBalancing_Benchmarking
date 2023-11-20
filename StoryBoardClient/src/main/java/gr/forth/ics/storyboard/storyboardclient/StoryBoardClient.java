@@ -161,6 +161,18 @@ public class StoryBoardClient {
             System.out.println("RESPONSE_CODE: "+respCode+"\tAvg: "+avgThroughput+"\tMin: "+minThroughput+"\tMax: "+maxThroughput);
         }
         System.out.println("---------------------------");
+        
+        List<Long> netLoadBalancerLatency=new ArrayList<>();
+        for(Triple<Integer,String,Long> triple : resultsList){
+            JSONObject resultJson = new JSONObject(triple.getMiddle());
+            long netThroughput=Long.valueOf(resultJson.get("througput_net").toString());
+            netLoadBalancerLatency.add(triple.getRight()-netThroughput);
+        }
+        System.out.println("Net LoadBalancer latency: \t"+netLoadBalancerLatency.stream().mapToLong(Long::longValue).average().orElse(-1)
+                          +"\tMin: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).min().orElse(-1)
+                          +"\tMax: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).max().orElse(-1));
+        
+        System.out.println("---------------------------");
         Map<String,Integer> serverUtilization=new HashMap<>();
         for(Triple<Integer,String,Long> triple : resultsList){
             if(triple.getLeft().intValue()==200){
@@ -219,9 +231,9 @@ public class StoryBoardClient {
     
     public static void main(String[] args) throws IOException, InterruptedException {
         NUMBER_OF_THREADS=10;
-//        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
+        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
 //        voteForStoryMultiThread(NUMBER_OF_THREADS);
-        postNewStoryMultiThread(NUMBER_OF_THREADS);
+//        postNewStoryMultiThread(NUMBER_OF_THREADS);
         printResultsDetailed();
         printResultsAggregated();
 //        warmUp();
