@@ -41,6 +41,9 @@ public class Story implements Serializable{
     @Transient @JsonProperty("served_by") 
     private UUID serverUuid;
     
+    @Transient @JsonProperty("througput_net")
+    private long throughputNet;
+    
     public Story(String title, String contents, Date postDate, int numOfLikes){
         this.title=title;
         this.contents=contents;

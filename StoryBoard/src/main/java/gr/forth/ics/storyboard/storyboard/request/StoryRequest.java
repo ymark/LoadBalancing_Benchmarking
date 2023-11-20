@@ -33,9 +33,13 @@ public class StoryRequest {
     public Response getRequestMany(@QueryParam("num_of_likes") String numOfLikes){
         log.info("Received incoming request for searching stories with number of likes: "+numOfLikes);
         
+        long timeStart=System.currentTimeMillis();
         Response.Status status=Response.Status.OK;
         Collection<Story> storiesResults=this.storyService.getStoriesWithAtLeastNumberOfLikes(Integer.valueOf(numOfLikes));
-        storiesResults.forEach(aStory -> aStory.setServerUuid(Resources.SERVER_INSTANCE_UUID));
+        storiesResults.forEach(aStory -> {
+            aStory.setServerUuid(Resources.SERVER_INSTANCE_UUID);
+            aStory.setThroughputNet((System.currentTimeMillis()-timeStart));
+        });
 
         log.debug("Return values in JSON format");
         return Response.status(status)
@@ -50,6 +54,7 @@ public class StoryRequest {
     @Path("/single/")
     public Response getRequestSingle(@QueryParam("id") String id){
         log.info("Received incoming request for searching story with id: "+id);
+        long timeStart=System.currentTimeMillis();
         
         Response.Status status=Response.Status.OK;
         Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
@@ -57,6 +62,7 @@ public class StoryRequest {
             status=Response.Status.NOT_FOUND;
         }else{
             story.setServerUuid(Resources.SERVER_INSTANCE_UUID);
+            story.setThroughputNet((System.currentTimeMillis()-timeStart));
         }
         log.debug("Return values in JSON format");
         return Response.status(status)
@@ -72,11 +78,13 @@ public class StoryRequest {
     public Response getRequestAdd(@QueryParam("title") String title,
                                   @QueryParam("story_content") String storyContents){
         log.info("Received incoming request for searching adding a new story with title: "+title+" and contents: "+storyContents);
+        long timeStart=System.currentTimeMillis();
         
         Response.Status status=Response.Status.OK;
         Story newStory=new Story(title, storyContents, Date.valueOf(LocalDate.now()), 0);
         this.storyService.addStory(newStory);
         newStory.setServerUuid(Resources.SERVER_INSTANCE_UUID);
+        newStory.setThroughputNet((System.currentTimeMillis()-timeStart));
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
                        .entity(newStory)
@@ -92,15 +100,7 @@ public class StoryRequest {
         
         Response.Status status=Response.Status.OK;
         this.storyService.voteForStoryWithId(Integer.valueOf(id));
-//        Story story=this.storyService.getStoryWithId(Integer.valueOf(id));
-//        if(story==null){
-//            status=Response.Status.NOT_FOUND;
-//        }else{
-//            story.setNumberOfLikes(story.getNumberOfLikes().intValue()+1);
-//            this.storyService.addStory(story);
-//            story.setServerUuid(Resources.SERVER_INSTANCE_UUID);
-//        }
-//        log.debug("Return values in JSON format");
+
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
                        .entity("{\"id\":"+id+", \"served_by\": \""+Resources.SERVER_INSTANCE_UUID.toString()+"\"}")
