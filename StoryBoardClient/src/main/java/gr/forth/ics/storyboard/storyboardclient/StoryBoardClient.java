@@ -173,6 +173,21 @@ public class StoryBoardClient {
                           +"\tMax: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).max().orElse(-1));
         
         System.out.println("---------------------------");
+        List<Integer> titlesLength=new ArrayList<>();
+        List<Integer> contentsLength=new ArrayList<>();
+        for(Triple<Integer,String,Long> triple : resultsList){
+            JSONObject resultJson = new JSONObject(triple.getMiddle());
+            titlesLength.add(resultJson.get("title").toString().length());
+            contentsLength.add(resultJson.get("contents").toString().length());
+        }
+        System.out.println("Average Response Title Size: \t"+titlesLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
+                          +"\tMin: "+titlesLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
+                          +"\tMax: "+titlesLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
+        System.out.println("Average Response Contents Size: \t"+contentsLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
+                          +"\tMin: "+contentsLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
+                          +"\tMax: "+contentsLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
+        
+        System.out.println("---------------------------");
         Map<String,Integer> serverUtilization=new HashMap<>();
         for(Triple<Integer,String,Long> triple : resultsList){
             if(triple.getLeft().intValue()==200){
@@ -230,7 +245,7 @@ public class StoryBoardClient {
     }
     
     public static void main(String[] args) throws IOException, InterruptedException {
-        NUMBER_OF_THREADS=10;
+        NUMBER_OF_THREADS=5;
         visitStoryBoardMultiThread(NUMBER_OF_THREADS);
 //        voteForStoryMultiThread(NUMBER_OF_THREADS);
 //        postNewStoryMultiThread(NUMBER_OF_THREADS);
