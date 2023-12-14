@@ -36,15 +36,24 @@ public class StoryRequest {
         long timeStart=System.currentTimeMillis();
         Response.Status status=Response.Status.OK;
         Collection<Story> storiesResults=this.storyService.getStoriesWithAtLeastNumberOfLikes(Integer.valueOf(numOfLikes));
-        storiesResults.forEach(aStory -> {
-            aStory.setServerUuid(Resources.SERVER_INSTANCE_UUID);
-            aStory.setThroughputNet((System.currentTimeMillis()-timeStart));
-        });
+//        storiesResults.forEach(aStory -> {
+//            aStory.setServerUuid(Resources.SERVER_INSTANCE_UUID);
+//            aStory.setThroughputNet((System.currentTimeMillis()-timeStart));
+//        });
+        
+        Story retStory=new Story();
+        retStory.setId(storiesResults.size());
+        retStory.setNumberOfLikes(Integer.valueOf(numOfLikes));
+        retStory.setTitle("Collection of "+storiesResults.size()+" Stories");
+        retStory.setContents(storiesResults.toString());
+        retStory.setServerUuid(Resources.SERVER_INSTANCE_UUID);
+        retStory.setThroughputNet((System.currentTimeMillis()-timeStart));
 
         log.debug("Return values in JSON format");
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
-                       .entity(storiesResults)
+//                       .entity(storiesResults)
+                       .entity(retStory)
                        .build();
    
     }

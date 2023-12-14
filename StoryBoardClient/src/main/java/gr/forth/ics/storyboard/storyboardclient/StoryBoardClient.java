@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 public class StoryBoardClient {
     private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/";
     private static final String SERVICE_STORY_URL = SERVICE_URL+"single/";
+    private static final String SERVICE_LIKES_URL = SERVICE_URL+"many/";
     private static final String SERVICE_VOTE_URL = SERVICE_URL+"vote/";
     private static final String SERVICE_POST_URL = SERVICE_URL+"new/";
     private static List<Triple<Integer,String,Long>> resultsList=new ArrayList<>();
@@ -65,6 +67,24 @@ public class StoryBoardClient {
         try{
             CloseableHttpClient httpClient = HttpClients.createDefault();
             HttpGet httpGet = new HttpGet(SERVICE_POST_URL+"/?title="+storyTitle+"&story_content="+storyContents);
+            long time=System.currentTimeMillis();
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            resultsList.add(Triple.of(
+                    response.getStatusLine().getStatusCode(), 
+                    responseBody,
+                    (System.currentTimeMillis()-time)));
+            response.close();
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    private static void searchForStoryWithLikes(int numOfLikes) {
+        try{
+            
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(SERVICE_LIKES_URL+"/?num_of_likes="+numOfLikes);
             long time=System.currentTimeMillis();
             CloseableHttpResponse response = httpClient.execute(httpGet);
             String responseBody = EntityUtils.toString(response.getEntity());
@@ -127,6 +147,27 @@ public class StoryBoardClient {
                 @Override
                 public void run(){
                     postNewStory(generateSentence(3, 6, 4, 12).replaceAll(" ", "%20"),generateSentence(10, 40, 4, 12).replace(" ","%20"));
+                }
+            };
+            threads.add(thread);
+        }
+        threads.forEach(thr -> thr.start());
+        threads.forEach(thr-> {
+            try{
+                thr.join();
+            }catch(InterruptedException ex){
+                ex.printStackTrace();
+            }      
+        });
+    }
+    
+    private static void searchForStoriesMultiThread(int numOfThreads){
+        List<Thread> threads=new ArrayList<>();
+        for(int i=0;i<numOfThreads;i++){
+            Thread thread=new Thread(){
+                @Override
+                public void run(){
+                    searchForStoryWithLikes(randomNumber(1, 500));
                 }
             };
             threads.add(thread);
@@ -246,9 +287,11 @@ public class StoryBoardClient {
     
     public static void main(String[] args) throws IOException, InterruptedException {
         NUMBER_OF_THREADS=5;
-        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
+//        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
 //        voteForStoryMultiThread(NUMBER_OF_THREADS);
 //        postNewStoryMultiThread(NUMBER_OF_THREADS);
+        searchForStoriesMultiThread(NUMBER_OF_THREADS);
+    
         printResultsDetailed();
         printResultsAggregated();
 //        warmUp();
