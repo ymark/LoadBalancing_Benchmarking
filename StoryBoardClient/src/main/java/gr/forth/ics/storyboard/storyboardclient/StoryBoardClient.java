@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -13,18 +16,23 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 /**
  * @author Yannis Marketakis (marketak 'at' ics 'dot' forth 'dot' gr)
  */
 public class StoryBoardClient {
-    private static final String SERVICE_URL = "http://localhost:8080/StoryBoard/resources/stories/";
-    private static final String SERVICE_STORY_URL = SERVICE_URL+"single/";
-    private static final String SERVICE_LIKES_URL = SERVICE_URL+"many/";
-    private static final String SERVICE_VOTE_URL = SERVICE_URL+"vote/";
-    private static final String SERVICE_POST_URL = SERVICE_URL+"new/";
+    static Options options = new Options();
+    static final CommandLineParser PARSER = new DefaultParser();
+    private static String VM_URL="http://0.0.0.0:8099";
+    private static String SERVICE_URL = VM_URL+"/StoryBoard/resources/stories/";
+    private static String SERVICE_STORY_URL = SERVICE_URL+"single/";
+    private static String SERVICE_LIKES_URL = SERVICE_URL+"many/";
+    private static String SERVICE_VOTE_URL = SERVICE_URL+"vote/";
+    private static String SERVICE_POST_URL = SERVICE_URL+"new/";
     private static List<Triple<Integer,String,Long>> resultsList=new ArrayList<>();
     private static int NUMBER_OF_THREADS;
     
@@ -285,15 +293,75 @@ public class StoryBoardClient {
         return sentenceBuilder.toString().trim();
     }
     
-    public static void main(String[] args) throws IOException, InterruptedException {
-        NUMBER_OF_THREADS=5;
-//        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
-//        voteForStoryMultiThread(NUMBER_OF_THREADS);
-//        postNewStoryMultiThread(NUMBER_OF_THREADS);
-        searchForStoriesMultiThread(NUMBER_OF_THREADS);
+//    public static void main(String[] args) throws IOException, InterruptedException {
+//        NUMBER_OF_THREADS=5;
+////        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
+////        voteForStoryMultiThread(NUMBER_OF_THREADS);
+////        postNewStoryMultiThread(NUMBER_OF_THREADS);
+//        searchForStoriesMultiThread(NUMBER_OF_THREADS);
+//    
+//        printResultsDetailed();
+//        printResultsAggregated();
+////        warmUp();
+//    }
     
-        printResultsDetailed();
-        printResultsAggregated();
-//        warmUp();
+    private static void createOptionsList() {
+        Option urlOption = new Option("u", "url", true, "location_url");
+        urlOption.setRequired(true);
+
+        Option threadsOption = new Option("t", "threads", true, "number concurrent of threads");
+        threadsOption.setRequired(true);
+
+        Option actionOption = new Option("a", "action", true, "The DB password");
+        actionOption.setRequired(true);
+        
+        Option verboseResultsOption = new Option("v", "verbose", false, "report verbose results");
+        actionOption.setRequired(true);
+
+        options.addOption(urlOption)
+                .addOption(threadsOption)
+                .addOption(actionOption)
+                .addOption(verboseResultsOption);
     }
+    
+    private static void updateServiceUrls(){
+        SERVICE_URL = VM_URL+"/StoryBoard/resources/stories/";
+        SERVICE_STORY_URL = SERVICE_URL+"single/";
+        SERVICE_LIKES_URL = SERVICE_URL+"many/";
+        SERVICE_VOTE_URL = SERVICE_URL+"vote/";
+        SERVICE_POST_URL = SERVICE_URL+"new/";
+    }
+    
+    public static void main(String[] args) throws IOException, InterruptedException, ParseException{
+        createOptionsList();
+        CommandLine cli = PARSER.parse(options, args);
+        VM_URL=cli.getOptionValue('u');
+        updateServiceUrls();
+        NUMBER_OF_THREADS=Integer.valueOf(cli.getOptionValue('t'));
+        String actionToPerform=cli.getOptionValue('a');
+        switch(actionToPerform){
+            case "visit":
+                visitStoryBoardMultiThread(NUMBER_OF_THREADS);
+                break;
+            case "vote":
+                voteForStoryMultiThread(NUMBER_OF_THREADS);
+                break;
+            case "post":
+                postNewStoryMultiThread(NUMBER_OF_THREADS);
+                break;
+            case "search":
+                searchForStoriesMultiThread(NUMBER_OF_THREADS);
+                break;
+            case "warm":
+                warmUp();
+                break;
+            default:
+                System.out.println("Cannot identify action '"+actionToPerform+"'. Select one of the following: visit, vote, search, post, warm");
+        }
+        if(cli.hasOption('v')){
+            printResultsDetailed();
+        }
+        printResultsAggregated();
+    }
+    
 }
