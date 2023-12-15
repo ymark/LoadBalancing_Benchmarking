@@ -1,7 +1,7 @@
 version: '3'
 services:
   storyboard_mysql:
-    command: [ "--max_connections=500" ]
+    command: [ "--max_connections=1000" ]
     image: mysql:5.7
     container_name: storyboard_mysql
     hostname: storyboard_mysql
