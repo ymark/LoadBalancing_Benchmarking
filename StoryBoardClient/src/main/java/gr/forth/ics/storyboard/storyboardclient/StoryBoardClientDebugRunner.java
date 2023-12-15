@@ -8,7 +8,7 @@ import org.apache.commons.cli.ParseException;
  */
 public class StoryBoardClientDebugRunner {
     public static void main(String[] args) throws IOException, InterruptedException, ParseException{
-        String[] parameters={"-u", "http://0.0.0.0:8099/", 
+        String[] parameters={"-u", "http://localhost:8080/", 
                              "-t", "5",
                              "-a", "visit",
                              "-v",

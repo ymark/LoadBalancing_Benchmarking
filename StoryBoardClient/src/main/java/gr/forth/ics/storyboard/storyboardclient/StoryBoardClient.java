@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Yannis Marketakis (marketak 'at' ics 'dot' forth 'dot' gr)
@@ -35,6 +37,7 @@ public class StoryBoardClient {
     private static String SERVICE_POST_URL = SERVICE_URL+"new/";
     private static List<Triple<Integer,String,Long>> resultsList=new ArrayList<>();
     private static int NUMBER_OF_THREADS;
+    private static final Logger logger=LogManager.getLogger();
     
     private static void visitStoryBoard(int storyId) {
         try{
@@ -195,21 +198,21 @@ public class StoryBoardClient {
     }
     
     private static void printResultsDetailed(){
-        System.out.println("Response Code\tThroughput time (ms)");
+        logger.info("Response Code\tThroughput time (ms)");
         for(Triple<Integer,String,Long> triple : resultsList){
             System.out.println(triple);
         }
     }
     
     private static void printResultsAggregated(){
-        System.out.println("Number of Threads: "+NUMBER_OF_THREADS);
+        logger.info("Number of Threads: "+NUMBER_OF_THREADS);
         for(Integer respCode : resultsList.stream().map(Triple::getLeft).collect(Collectors.toSet())){
             long minThroughput=resultsList.stream().filter(triple -> triple.getLeft().longValue()==respCode.longValue()).map(Triple::getRight).mapToLong(Long::longValue).min().orElse(-1);
             long maxThroughput=resultsList.stream().filter(triple -> triple.getLeft().longValue()==respCode.longValue()).map(Triple::getRight).mapToLong(Long::longValue).max().orElse(-1);
             double avgThroughput=resultsList.stream().filter(triple -> triple.getLeft().longValue()==respCode.longValue()).map(Triple::getRight).mapToLong(Long::longValue).average().orElse(-1);
-            System.out.println("RESPONSE_CODE: "+respCode+"\tAvg: "+avgThroughput+"\tMin: "+minThroughput+"\tMax: "+maxThroughput);
+            logger.info("RESPONSE_CODE: "+respCode+"\tAvg: "+avgThroughput+"\tMin: "+minThroughput+"\tMax: "+maxThroughput);
         }
-        System.out.println("---------------------------");
+        logger.info("---------------------------");
         
         List<Long> netLoadBalancerLatency=new ArrayList<>();
         for(Triple<Integer,String,Long> triple : resultsList){
@@ -217,11 +220,11 @@ public class StoryBoardClient {
             long netThroughput=Long.valueOf(resultJson.get("througput_net").toString());
             netLoadBalancerLatency.add(triple.getRight()-netThroughput);
         }
-        System.out.println("Net LoadBalancer latency: \t"+netLoadBalancerLatency.stream().mapToLong(Long::longValue).average().orElse(-1)
+        logger.info("Net LoadBalancer latency: \t"+netLoadBalancerLatency.stream().mapToLong(Long::longValue).average().orElse(-1)
                           +"\tMin: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).min().orElse(-1)
                           +"\tMax: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).max().orElse(-1));
         
-        System.out.println("---------------------------");
+        logger.info("---------------------------");
         List<Integer> titlesLength=new ArrayList<>();
         List<Integer> contentsLength=new ArrayList<>();
         for(Triple<Integer,String,Long> triple : resultsList){
@@ -229,14 +232,14 @@ public class StoryBoardClient {
             titlesLength.add(resultJson.get("title").toString().length());
             contentsLength.add(resultJson.get("contents").toString().length());
         }
-        System.out.println("Average Response Title Size: \t"+titlesLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
+        logger.info("Average Response Title Size: \t"+titlesLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
                           +"\tMin: "+titlesLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
                           +"\tMax: "+titlesLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
-        System.out.println("Average Response Contents Size: \t"+contentsLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
+        logger.info("Average Response Contents Size: \t"+contentsLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
                           +"\tMin: "+contentsLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
                           +"\tMax: "+contentsLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
         
-        System.out.println("---------------------------");
+        logger.info("---------------------------");
         Map<String,Integer> serverUtilization=new HashMap<>();
         for(Triple<Integer,String,Long> triple : resultsList){
             if(triple.getLeft().intValue()==200){
@@ -249,12 +252,12 @@ public class StoryBoardClient {
                         serverUtilization.put(serverUuid, 1);
                     }
                 }else{
-                    System.out.println("Cannot identify server UUID from JSON response "+triple.getMiddle());
+                    logger.error("Cannot identify server UUID from JSON response "+triple.getMiddle());
                 }
             }
         }
-        System.out.println("SERVER Utilization ");
-        System.out.println("Server UUID\tNum of Responses");
+        logger.info("SERVER Utilization ");
+        logger.info("Server UUID\tNum of Responses");
         serverUtilization.forEach((serverUuid,servedNum) -> System.out.println(serverUuid+"\t"+servedNum));
     }
     
@@ -277,10 +280,10 @@ public class StoryBoardClient {
             int numOfLikes=randomNumber(1, 500);
             int randomStoryId=randomNumber(1, 20000);
             long roundStartTimeMs=System.currentTimeMillis();
-            System.out.println("Warm-up queries (round "+i+"/"+warmUpRounds+") - Fetch story with random ID ("+randomStoryId+"), and collection of stories with random votes (>= "+numOfLikes+")");
+            logger.info("Warm-up queries (round "+i+"/"+warmUpRounds+") - Fetch story with random ID ("+randomStoryId+"), and collection of stories with random votes (>= "+numOfLikes+")");
             visitStoryBoardNoBenchmark("single", "id", String.valueOf(randomStoryId));
             visitStoryBoardNoBenchmark("many", "num_of_likes", String.valueOf(numOfLikes));
-            System.out.println("Warm-up round "+i+" finished in "+(System.currentTimeMillis()-roundStartTimeMs)+" ms.");
+            logger.info("Warm-up round "+i+" finished in "+(System.currentTimeMillis()-roundStartTimeMs)+" ms.");
         }
     }
     
@@ -292,18 +295,6 @@ public class StoryBoardClient {
         sentenceBuilder.setCharAt(0, Character.toUpperCase(sentenceBuilder.charAt(0)));
         return sentenceBuilder.toString().trim();
     }
-    
-//    public static void main(String[] args) throws IOException, InterruptedException {
-//        NUMBER_OF_THREADS=5;
-////        visitStoryBoardMultiThread(NUMBER_OF_THREADS);
-////        voteForStoryMultiThread(NUMBER_OF_THREADS);
-////        postNewStoryMultiThread(NUMBER_OF_THREADS);
-//        searchForStoriesMultiThread(NUMBER_OF_THREADS);
-//    
-//        printResultsDetailed();
-//        printResultsAggregated();
-////        warmUp();
-//    }
     
     private static void createOptionsList() {
         Option urlOption = new Option("u", "url", true, "location_url");
@@ -356,7 +347,7 @@ public class StoryBoardClient {
                 warmUp();
                 break;
             default:
-                System.out.println("Cannot identify action '"+actionToPerform+"'. Select one of the following: visit, vote, search, post, warm");
+                logger.error("Cannot identify action '"+actionToPerform+"'. Select one of the following: visit, vote, search, post, warm");
         }
         if(cli.hasOption('v')){
             printResultsDetailed();
