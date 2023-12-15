@@ -333,7 +333,7 @@ public class StoryBoardClient {
         NUMBER_OF_THREADS=Integer.valueOf(cli.getOptionValue('t'));
         String actionToPerform=cli.getOptionValue('a');
         if(actionToPerform.equals("visit") || actionToPerform.equals("vote") || actionToPerform.equals("post") || actionToPerform.equals("search")){
-            logger.info("----------START Experiment: "+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))+"\tType: "+actionToPerform+"\tThreads: "+NUMBER_OF_THREADS+"----------");
+            logger.info("----------START Experiment: "+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))+"\tURL: "+VM_URL+"\tType: "+actionToPerform+"\tThreads: "+NUMBER_OF_THREADS+"----------");
         }
         switch(actionToPerform){
             case "visit":
@@ -349,7 +349,7 @@ public class StoryBoardClient {
                 searchForStoriesMultiThread(NUMBER_OF_THREADS);
                 break;
             case "warm":
-                
+                logger.info("----------WarmUp: "+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))+"\tURL: "+VM_URL);
                 warmUp();
                 break;
             default:
