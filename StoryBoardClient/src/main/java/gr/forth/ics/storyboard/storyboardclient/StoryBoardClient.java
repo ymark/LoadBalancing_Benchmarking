@@ -1,6 +1,8 @@
 package gr.forth.ics.storyboard.storyboardclient;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -200,7 +202,7 @@ public class StoryBoardClient {
     private static void printResultsDetailed(){
         logger.info("Response Code\tThroughput time (ms)");
         for(Triple<Integer,String,Long> triple : resultsList){
-            System.out.println(triple);
+            logger.info(triple);
         }
     }
     
@@ -212,7 +214,7 @@ public class StoryBoardClient {
             double avgThroughput=resultsList.stream().filter(triple -> triple.getLeft().longValue()==respCode.longValue()).map(Triple::getRight).mapToLong(Long::longValue).average().orElse(-1);
             logger.info("RESPONSE_CODE: "+respCode+"\tAvg: "+avgThroughput+"\tMin: "+minThroughput+"\tMax: "+maxThroughput);
         }
-        logger.info("---------------------------");
+        logger.info("---------------------------------------");
         
         List<Long> netLoadBalancerLatency=new ArrayList<>();
         for(Triple<Integer,String,Long> triple : resultsList){
@@ -224,7 +226,7 @@ public class StoryBoardClient {
                           +"\tMin: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).min().orElse(-1)
                           +"\tMax: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).max().orElse(-1));
         
-        logger.info("---------------------------");
+        logger.info("---------------------------------------");
         List<Integer> titlesLength=new ArrayList<>();
         List<Integer> contentsLength=new ArrayList<>();
         for(Triple<Integer,String,Long> triple : resultsList){
@@ -239,7 +241,7 @@ public class StoryBoardClient {
                           +"\tMin: "+contentsLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
                           +"\tMax: "+contentsLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
         
-        logger.info("---------------------------");
+        logger.info("---------------------------------------");
         Map<String,Integer> serverUtilization=new HashMap<>();
         for(Triple<Integer,String,Long> triple : resultsList){
             if(triple.getLeft().intValue()==200){
@@ -258,7 +260,7 @@ public class StoryBoardClient {
         }
         logger.info("SERVER Utilization ");
         logger.info("Server UUID\tNum of Responses");
-        serverUtilization.forEach((serverUuid,servedNum) -> System.out.println(serverUuid+"\t"+servedNum));
+        serverUtilization.forEach((serverUuid,servedNum) -> logger.info(serverUuid+"\t"+servedNum));
     }
     
     private static void visitStoryBoardNoBenchmark(String method, String parameterName, String parameterValue) {
@@ -330,6 +332,9 @@ public class StoryBoardClient {
         updateServiceUrls();
         NUMBER_OF_THREADS=Integer.valueOf(cli.getOptionValue('t'));
         String actionToPerform=cli.getOptionValue('a');
+        if(actionToPerform.equals("visit") || actionToPerform.equals("vote") || actionToPerform.equals("post") || actionToPerform.equals("search")){
+            logger.info("----------START Experiment: "+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))+"\tType: "+actionToPerform+"\tThreads: "+NUMBER_OF_THREADS+"----------");
+        }
         switch(actionToPerform){
             case "visit":
                 visitStoryBoardMultiThread(NUMBER_OF_THREADS);
@@ -344,6 +349,7 @@ public class StoryBoardClient {
                 searchForStoriesMultiThread(NUMBER_OF_THREADS);
                 break;
             case "warm":
+                
                 warmUp();
                 break;
             default:
@@ -353,6 +359,8 @@ public class StoryBoardClient {
             printResultsDetailed();
         }
         printResultsAggregated();
+        logger.info("----------FINISHED Experiment----------");
+        logger.info("---------------------------------------\n");
     }
     
 }
