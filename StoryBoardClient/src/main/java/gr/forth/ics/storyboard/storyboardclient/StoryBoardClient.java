@@ -111,7 +111,7 @@ public class StoryBoardClient {
         }
     }
 
-    private static void visitStoryBoardMultiThread(int numOfThreads){
+    private static void visitStoryBoardMultiThread(int numOfThreads) throws InterruptedException{
         List<Thread> threads=new ArrayList<>();
         for(int i=0;i<numOfThreads;i++){
             Thread thread=new Thread(){
@@ -227,21 +227,21 @@ public class StoryBoardClient {
                           +"\tMax: "+netLoadBalancerLatency.stream().mapToLong(Long::longValue).max().orElse(-1));
         
         logger.info("---------------------------------------");
-        List<Integer> titlesLength=new ArrayList<>();
-        List<Integer> contentsLength=new ArrayList<>();
-        for(Triple<Integer,String,Long> triple : resultsList){
-            JSONObject resultJson = new JSONObject(triple.getMiddle());
-            titlesLength.add(resultJson.get("title").toString().length());
-            contentsLength.add(resultJson.get("contents").toString().length());
-        }
-        logger.info("Average Response Title Size: \t"+titlesLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
-                          +"\tMin: "+titlesLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
-                          +"\tMax: "+titlesLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
-        logger.info("Average Response Contents Size: \t"+contentsLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
-                          +"\tMin: "+contentsLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
-                          +"\tMax: "+contentsLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
-        
-        logger.info("---------------------------------------");
+//        List<Integer> titlesLength=new ArrayList<>();
+//        List<Integer> contentsLength=new ArrayList<>();
+//        for(Triple<Integer,String,Long> triple : resultsList){
+//            JSONObject resultJson = new JSONObject(triple.getMiddle());
+//            titlesLength.add(resultJson.get("title").toString().length());
+//            contentsLength.add(resultJson.get("contents").toString().length());
+//        }
+//        logger.info("Average Response Title Size: \t"+titlesLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
+//                          +"\tMin: "+titlesLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
+//                          +"\tMax: "+titlesLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
+//        logger.info("Average Response Contents Size: \t"+contentsLength.stream().mapToInt(Integer::intValue).average().orElse(-1)
+//                          +"\tMin: "+contentsLength.stream().mapToInt(Integer::intValue).min().orElse(-1)
+//                          +"\tMax: "+contentsLength.stream().mapToInt(Integer::intValue).max().orElse(-1));
+//        
+//        logger.info("---------------------------------------");
         Map<String,Integer> serverUtilization=new HashMap<>();
         for(Triple<Integer,String,Long> triple : resultsList){
             if(triple.getLeft().intValue()==200){
