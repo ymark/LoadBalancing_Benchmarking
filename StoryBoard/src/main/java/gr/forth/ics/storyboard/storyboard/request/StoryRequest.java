@@ -106,13 +106,16 @@ public class StoryRequest {
     @Path("/vote/")
     public Response getRequestVote(@QueryParam("id") String id){
         log.info("Received incoming request for votinh a story with id: "+id);
-        
+        long timeStart=System.currentTimeMillis();
         Response.Status status=Response.Status.OK;
         this.storyService.voteForStoryWithId(Integer.valueOf(id));
 
         return Response.status(status)
                        .type(MediaType.APPLICATION_JSON)
-                       .entity("{\"id\":"+id+", \"served_by\": \""+Resources.SERVER_INSTANCE_UUID.toString()+"\"}")
+                       .entity("{\"id\":"+id+", "
+                              +"\"served_by\": \""+Resources.SERVER_INSTANCE_UUID.toString()+"\", "
+                              +"\"througput_net\": "+(System.currentTimeMillis()-timeStart)
+                            +"}")
                        .build();
    
     }
